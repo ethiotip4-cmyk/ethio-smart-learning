@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Ethio Smart Learning — Grade 9–12 Mini App</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Ethiopic:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', 'Noto Sans Ethiopic', system-ui, -apple-system, sans-serif;
+      padding-bottom: 78px;
+    }
+    .fade-in {
+      animation: fadeIn 0.2s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .flashcard-scene {
+      perspective: 1000px;
+    }
+    .flashcard-inner {
+      position: relative;
+      width: 100%;
+      min-height: 220px;
+      transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+      transform-style: preserve-3d;
+    }
+    .flashcard-inner.is-flipped {
+      transform: rotateY(180deg);
+    }
+    .flashcard-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .flashcard-back {
+      transform: rotateY(180deg);
+    }
+    .bnav-active {
+      color: #34d399;
+    }
+    .bnav-active .bnav-pill {
+      background-color: rgba(16, 185, 129, 0.16);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-emerald-500/30">
+
+  <!-- Top Mini-App Header -->
+  <header class="sticky top-0 z-30 bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 via-teal-500 to-amber-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 shrink-0">
+          <i data-lucide="graduation-cap" class="w-5 h-5 text-slate-950"></i>
+        </div>
+        <div class="min-w-0">
+          <h1 class="text-sm sm:text-base font-extrabold tracking-tight text-white truncate">Ethio Smart Learning</h1>
+          <p id="userGreeting" class="text-[11px] text-emerald-400 font-medium truncate">Grade 9–12 Mini App • 24/7 Free</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 shrink-0">
+        <select id="gradeSelect" aria-label="Select Grade" class="bg-slate-900 border border-slate-700 text-slate-100 text-xs font-semibold rounded-xl px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          <option value="G9">Grade 9</option>
+          <option value="G10">Grade 10</option>
+          <option value="G11_NAT">G11 Natural</option>
+          <option value="G11_SOC">G11 Social</option>
+          <option value="G12_NAT" selected>G12 Natural</option>
+          <option value="G12_SOC">G12 Social</option>
+        </select>
+        <a href="https://t.me/smartlearn12" target="_blank" rel="noopener noreferrer" aria-label="Telegram Channel" class="inline-flex items-center gap-1 bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs px-2.5 py-2 rounded-xl transition">
+          <i data-lucide="send" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">@smartlearn12</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main App Container -->
+  <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-5">
+
+    <!-- Compact Hero / XP Banner -->
+    <section class="mb-5 rounded-2xl bg-gradient-to-br from-emerald-950/90 via-slate-900 to-slate-900 border border-emerald-700/40 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg">
+      <div>
+        <div class="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-300 bg-amber-400/10 border border-amber-400/20 px-2.5 py-0.5 rounded-full mb-1.5">
+          <i data-lucide="sparkles" class="w-3 h-3"></i>
+          <span id="heroGradeBadge">Grade 12 — Natural Science</span>
+        </div>
+        <h2 class="text-base sm:text-lg font-extrabold text-white">ለብሔራዊ ፈተና (EUEE) እና 9–12 ዝግጁ ይሁኑ</h2>
+        <p class="text-xs text-slate-300 mt-0.5">Chapter Notes፣ 3D Flashcards፣ Timed Past Exams እና Pomodoro Timer በአንድ መተግበሪያ።</p>
+      </div>
+      <div class="grid grid-cols-3 gap-2 shrink-0">
+        <div class="bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-center">
+          <div id="topXpStat" class="text-sm sm:text-base font-extrabold text-emerald-400">0 XP</div>
+          <div class="text-[10px] text-slate-400">ነጥብ</div>
+        </div>
+        <div class="bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-center">
+          <div id="topScoreStat" class="text-sm sm:text-base font-extrabold text-sky-400">0/0</div>
+          <div class="text-[10px] text-slate-400">Exam</div>
+        </div>
+        <div class="bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-center">
+          <div id="topStreakStat" class="text-sm sm:text-base font-extrabold text-amber-400">0 🔥</div>
+          <div class="text-[10px] text-slate-400">Streak</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 1: SUBJECTS & CHAPTER NOTES -->
+    <section id="view-subjects" class="view-section fade-in">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="book-open" class="w-4 h-4 text-emerald-400"></i>
+          <span>ኮርሶች እና የምዕራፍ ኖቶች (Courses & Units)</span>
+        </h3>
+        <div class="relative w-full sm:w-60">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+          <input id="subjectSearch" type="text" placeholder="ትምህርት ፈልግ (Physics, Math)..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-xs sm:text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+      </div>
+
+      <div id="subjectsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
+    </section>
+
+    <!-- VIEW 2: INTERACTIVE 3D FLASHCARDS -->
+    <section id="view-flashcards" class="view-section hidden fade-in">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="layers" class="w-4 h-4 text-amber-400"></i>
+          <span>ፈጣን መከለሻ ካርዶች (Interactive Flashcards)</span>
+        </h3>
+        <div class="flex items-center gap-2">
+          <select id="flashcardFilter" aria-label="Filter Flashcards" class="bg-slate-900 border border-slate-700 text-slate-100 text-xs sm:text-sm font-medium rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <option value="ALL">ሁሉም ትምህርቶች</option>
+            <option value="Physics">Physics</option>
+            <option value="Biology">Biology</option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="Mathematics">Mathematics</option>
+            <option value="Economics">Economics</option>
+            <option value="History">History</option>
+          </select>
+          <span id="flashcardMasteredBadge" class="text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-2.5 py-2 rounded-xl shrink-0">0 Mastered</span>
+        </div>
+      </div>
+
+      <div class="max-w-xl mx-auto">
+        <div class="flex items-center justify-between text-xs text-slate-400 mb-2 px-1">
+          <span id="fcSubjTag" class="font-bold text-amber-300">Physics</span>
+          <span id="fcCounter">Card 1 / 10</span>
+        </div>
+
+        <!-- 3D Flip Card -->
+        <div class="flashcard-scene mb-4">
+          <div id="flashcardInner" class="flashcard-inner cursor-pointer" role="button" tabindex="0" aria-label="Flip flashcard">
+            <div class="flashcard-face bg-gradient-to-br from-slate-900 to-slate-900/90 border border-slate-700 rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-xl">
+              <span class="text-[11px] uppercase tracking-widest text-slate-400 font-bold mb-2">ጥያቄ / ጽንሰ-ሀሳብ (Tap to Flip)</span>
+              <p id="fcFrontText" class="text-base sm:text-lg font-bold text-white leading-relaxed"></p>
+              <span class="mt-4 inline-flex items-center gap-1 text-xs text-emerald-400 font-semibold">
+                <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i> መልሱን ለማየት ይንኩ
+              </span>
+            </div>
+            <div class="flashcard-face flashcard-back bg-gradient-to-br from-emerald-950 to-slate-900 border border-emerald-500/50 rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-xl">
+              <span class="text-[11px] uppercase tracking-widest text-emerald-300 font-bold mb-2">መልስ / ፎርሙላ (Answer)</span>
+              <p id="fcBackText" class="text-sm sm:text-base font-semibold text-emerald-100 leading-relaxed"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2.5">
+          <button id="fcReviewBtn" class="bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 font-bold text-xs sm:text-sm py-3 rounded-xl transition">
+            🔁 ደግሜ ልየው
+          </button>
+          <button id="fcFlipBtn" class="bg-slate-900 hover:bg-slate-800 text-slate-100 border border-slate-700 font-bold text-xs sm:text-sm py-3 rounded-xl transition">
+            🔄 ገልብጥ
+          </button>
+          <button id="fcMasterBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm py-3 rounded-xl transition">
+            ✅ አውቄዋለሁ (+5 XP)
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: TIMED EXAM & PRACTICE QUIZ -->
+    <section id="view-quiz" class="view-section hidden fade-in">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="file-check-2" class="w-4 h-4 text-emerald-400"></i>
+          <span>የፈተና ልምምድ (Practice & Timed EUEE Mode)</span>
+        </h3>
+        <div class="flex flex-wrap items-center gap-2">
+          <select id="quizSubjectFilter" aria-label="Filter Quiz Subject" class="bg-slate-900 border border-slate-700 text-slate-100 text-xs sm:text-sm font-medium rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <option value="ALL">ሁሉም ትምህርቶች</option>
+            <option value="Physics">Physics</option>
+            <option value="Biology">Biology</option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="Mathematics">Mathematics</option>
+            <option value="English">English</option>
+            <option value="Economics">Economics</option>
+            <option value="Geography">Geography</option>
+            <option value="History">History</option>
+          </select>
+          <button id="toggleTimedModeBtn" class="bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-xs font-bold px-3 py-2 rounded-xl inline-flex items-center gap-1.5 transition">
+            <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+            <span id="timedModeLabel">Timed Mode: OFF</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <span id="quizTag" class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">Physics</span>
+          <div class="flex items-center gap-3">
+            <span id="examClock" class="hidden text-xs font-extrabold text-amber-300 bg-amber-500/15 border border-amber-500/30 px-2.5 py-1 rounded-lg tabular-nums">⏱ 00:45</span>
+            <span id="quizCounter" class="text-xs text-slate-400 font-medium">Question 1 / 12</span>
+          </div>
+        </div>
+
+        <h4 id="quizQuestion" class="text-sm sm:text-base font-bold text-white leading-relaxed mb-4">Loading...</h4>
+
+        <div id="quizOptions" class="space-y-2.5 mb-4"></div>
+
+        <div id="quizFeedback" class="hidden rounded-xl p-3.5 mb-4 text-xs sm:text-sm border"></div>
+
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-800">
+          <div class="text-xs sm:text-sm text-slate-300">
+            ውጤት፦ <strong id="quizInlineScore" class="text-emerald-400">0 / 0</strong>
+          </div>
+          <button id="nextQuestionBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl inline-flex items-center gap-1.5 transition">
+            <span>ቀጣይ ጥያቄ</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 4: EUEE HUB & POMODORO TIMER -->
+    <section id="view-euee" class="view-section hidden fade-in">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+              <i data-lucide="timer" class="w-4 h-4 text-amber-400"></i>
+              <span>የጥናት ሰዓት (Pomodoro)</span>
+            </h3>
+            <span id="timerSessionsBadge" class="text-xs font-semibold bg-amber-400/10 text-amber-300 border border-amber-400/20 px-2.5 py-1 rounded-full">0 ዙር</span>
+          </div>
+
+          <div class="flex justify-center gap-2 mb-4">
+            <button data-mins="25" class="timer-preset bg-emerald-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">25m Focus</button>
+            <button data-mins="45" class="timer-preset bg-slate-800 text-slate-300 hover:text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">45m Deep</button>
+            <button data-mins="5" class="timer-preset bg-slate-800 text-slate-300 hover:text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">5m Break</button>
+          </div>
+
+          <div class="text-center py-5 bg-slate-950 rounded-2xl border border-slate-800 mb-4">
+            <div id="timerDisplay" class="text-5xl font-extrabold tracking-tight text-white tabular-nums">25:00</div>
+            <p id="timerStatus" class="text-xs text-slate-400 mt-1.5">ለመጀመር Start ይጫኑ</p>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <button id="timerStartBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm py-2.5 rounded-xl transition">Start</button>
+            <button id="timerPauseBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold text-xs sm:text-sm py-2.5 rounded-xl transition">Pause</button>
+            <button id="timerResetBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs sm:text-sm py-2.5 rounded-xl transition">Reset</button>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
+          <div>
+            <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2 mb-1">
+              <i data-lucide="check-square" class="w-4 h-4 text-emerald-400"></i>
+              <span>የEUEE ዕለታዊ Checklist</span>
+            </h3>
+            <p class="text-xs text-slate-400 mb-3">በየቀኑ 500+ ለማምጣት እነዚህን ያጠናቅቁ፦</p>
+            <div id="eueeChecklist" class="space-y-2"></div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-800 flex flex-col sm:flex-row gap-2">
+            <a href="https://t.me/smartlearn12" target="_blank" rel="noopener noreferrer" class="flex-1 inline-flex items-center justify-center gap-1.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs py-2.5 px-3 rounded-xl transition">
+              <i data-lucide="file-text" class="w-4 h-4"></i>
+              <span>Past Papers (@smartlearn12)</span>
+            </a>
+            <button id="eueeQuickQuizBtn" class="flex-1 inline-flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 px-3 rounded-xl transition">
+              <i data-lucide="zap" class="w-4 h-4"></i>
+              <span>Timed EUEE Exam</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 5: PROFILE & TELEGRAM -->
+    <section id="view-profile" class="view-section hidden fade-in">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+              <i data-lucide="award" class="w-4 h-4 text-emerald-400"></i>
+              <span>የተማሪ ፕሮፋይል</span>
+            </h3>
+            <span id="profileBadge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">🌱 Beginner</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5 mb-4">
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
+              <div class="text-[11px] text-slate-400">ክፍል</div>
+              <div id="profileGrade" class="text-xs sm:text-sm font-bold text-white mt-0.5">Grade 12 — Natural</div>
+            </div>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
+              <div class="text-[11px] text-slate-400">ትክክለኛነት</div>
+              <div id="profileAccuracy" class="text-xs sm:text-sm font-bold text-emerald-400 mt-0.5">0%</div>
+            </div>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
+              <div class="text-[11px] text-slate-400">Flashcards Mastered</div>
+              <div id="profileMastered" class="text-xs sm:text-sm font-bold text-amber-400 mt-0.5">0 ካርድ</div>
+            </div>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
+              <div class="text-[11px] text-slate-400">የጥናት ዙሮች</div>
+              <div id="profileSessions" class="text-xs sm:text-sm font-bold text-sky-400 mt-0.5">0 ዙር</div>
+            </div>
+          </div>
+
+          <button id="openResetModalBtn" class="w-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 font-semibold text-xs py-2.5 rounded-xl transition">
+            ውጤቴን እንደገና ጀምር (Reset Progress)
+          </button>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
+          <div>
+            <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2 mb-2">
+              <i data-lucide="send" class="w-4 h-4 text-sky-400"></i>
+              <span>Ethio Smart Learning ቴሌግራም</span>
+            </h3>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">
+              ሙሉ PDF መጽሐፍት፣ የቪዲዮ ትምህርቶች እና አዳዲስ የብሔራዊ ፈተና ጥያቄዎችን በየቀኑ ለማግኘት ቻናላችንን ይቀላቀሉ።
+            </p>
+          </div>
+          <div class="space-y-2.5">
+            <a href="https://t.me/smartlearn12" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-2 bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs sm:text-sm py-3 rounded-xl transition">
+              <i data-lucide="megaphone" class="w-4 h-4"></i>
+              <span>ቻናላችንን ይቀላቀሉ (@smartlearn12)</span>
+            </a>
+            <a href="https://t.me/DagimTechPro_bot" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs sm:text-sm py-3 rounded-xl border border-slate-700 transition">
+              <i data-lucide="bot" class="w-4 h-4 text-emerald-400"></i>
+              <span>ቴሌግራም ቦት (@DagimTechPro_bot)</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Fixed Bottom App Navigation Bar (Telegram Mini App Style) -->
+  <nav aria-label="Bottom Navigation" class="fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800">
+    <div class="max-w-4xl mx-auto grid grid-cols-5 px-2 py-1.5">
+      <button data-tab="subjects" class="nav-btn bnav-active flex flex-col items-center justify-center gap-0.5 py-1 text-[11px] font-semibold transition">
+        <span class="bnav-pill px-3 py-1 rounded-full"><i data-lucide="book-open" class="w-4 h-4"></i></span>
+        <span>ትምህርት</span>
+      </button>
+      <button data-tab="flashcards" class="nav-btn text-slate-400 hover:text-white flex flex-col items-center justify-center gap-0.5 py-1 text-[11px] font-semibold transition">
+        <span class="bnav-pill px-3 py-1 rounded-full"><i data-lucide="layers" class="w-4 h-4"></i></span>
+        <span>Flashcards</span>
+      </button>
+      <button data-tab="quiz" class="nav-btn text-slate-400 hover:text-white flex flex-col items-center justify-center gap-0.5 py-1 text-[11px] font-semibold transition">
+        <span class="bnav-pill px-3 py-1 rounded-full"><i data-lucide="file-check-2" class="w-4 h-4"></i></span>
+        <span>Exam</span>
+      </button>
+      <button data-tab="euee" class="nav-btn text-slate-400 hover:text-white flex flex-col items-center justify-center gap-0.5 py-1 text-[11px] font-semibold transition">
+        <span class="bnav-pill px-3 py-1 rounded-full"><i data-lucide="target" class="w-4 h-4"></i></span>
+        <span>EUEE</span>
+      </button>
+      <button data-tab="profile" class="nav-btn text-slate-400 hover:text-white flex flex-col items-center justify-center gap-0.5 py-1 text-[11px] font-semibold transition">
+        <span class="bnav-pill px-3 py-1 rounded-full"><i data-lucide="user" class="w-4 h-4"></i></span>
+        <span>ፕሮፋይል</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Chapter & Formula Sheet Modal -->
+  <div id="noteModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-5 shadow-2xl max-h-[85vh] overflow-y-auto">
+      <div class="flex items-start justify-between gap-3 mb-3">
+        <div>
+          <span id="modalGradeTag" class="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Grade 12</span>
+          <h3 id="modalTitle" class="text-base sm:text-lg font-extrabold text-white">Subject Note</h3>
+        </div>
+        <button id="closeNoteModalBtn" aria-label="Close modal" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div id="modalBody" class="text-xs sm:text-sm text-slate-300 space-y-3 leading-relaxed mb-4"></div>
+      <div class="flex flex-col sm:flex-row gap-2 pt-3 border-t border-slate-800">
+        <a href="https://t.me/smartlearn12" target="_blank" rel="noopener noreferrer" class="flex-1 inline-flex items-center justify-center gap-1.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs py-2.5 px-3 rounded-xl transition">
+          <i data-lucide="download" class="w-4 h-4"></i>
+          <span>ሙሉ PDF / ቪዲዮ (@smartlearn12)</span>
+        </a>
+        <button id="modalQuizBtn" class="flex-1 inline-flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 px-3 rounded-xl transition">
+          <i data-lucide="brain" class="w-4 h-4"></i>
+          <span>Exam ተለማመድ</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reset Confirmation Modal -->
+  <div id="resetModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl">
+      <h3 class="text-base font-bold text-white mb-2">ውጤትዎን ማጥፋት ይፈልጋሉ?</h3>
+      <p class="text-xs sm:text-sm text-slate-300 mb-5">XP፣ Exam ነጥብ፣ Flashcards እና የጥናት ዙሮች ወደ 0 ይመለሳሉ።</p>
+      <div class="flex gap-2.5">
+        <button id="cancelResetBtn" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-sm py-2.5 rounded-xl">ተወው</button>
+        <button id="confirmResetBtn" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white font-bold text-sm py-2.5 rounded-xl">አዎ፣ ጀምር</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-20 right-4 z-50 hidden bg-emerald-600 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-lg"></div>
+
+  <script>
+    // Optional Telegram Mini App detection (works seamlessly in browser or inside Telegram)
+    (function initTelegramWebApp() {
+      try {
+        if (window.Telegram && window.Telegram.WebApp) {
+          const tg = window.Telegram.WebApp;
+          tg.ready();
+          tg.expand();
+          const u = tg.initDataUnsafe && tg.initDataUnsafe.user;
+          if (u && u.first_name) {
+            document.getElementById("userGreeting").textContent = `ሰላም ${u.first_name} • Grade 9–12 Mini App`;
+          }
+        }
+      } catch (e) {}
+    })();
+
+    const GRADE_LABELS = {
+      G9: "Grade 9",
+      G10: "Grade 10",
+      G11_NAT: "Grade 11 — Natural Science",
+      G11_SOC: "Grade 11 — Social Science",
+      G12_NAT: "Grade 12 — Natural Science",
+      G12_SOC: "Grade 12 — Social Science"
+    };
+
+    const SUBJECT_DETAILS = {
+      math: {
+        name: "Mathematics", am: "ሂሳብ", icon: "sigma", color: "text-blue-400 bg-blue-500/10 border-blue-500/20",
+        units: ["Unit 1: Sequences & Series", "Unit 2: Introduction to Calculus", "Unit 3: Statistics & Probability"],
+        summary: "Functions, sequences & series, vectors, matrices, limits, derivatives, and integration.",
+        bullets: ["Power Rule: d/dx(xⁿ) = n·xⁿ⁻¹", "Quadratic Formula: x = (-b ± √(b² - 4ac)) / 2a", "Infinite Geometric Sum (|r|<1): S∞ = a₁ / (1 - r)"]
+      },
+      physics: {
+        name: "Physics", am: "ፊዚክስ", icon: "zap", color: "text-amber-400 bg-amber-500/10 border-amber-500/20",
+        units: ["Unit 1: Application of Physics", "Unit 2: Two-Dimensional Motion", "Unit 3: Fluid Mechanics & Electromagnetism"],
+        summary: "Kinematics, Newton's laws, work & energy, waves, electricity, magnetism, and modern physics.",
+        bullets: ["Newton's 2nd Law: F = m·a", "Kinematics: v² = u² + 2as", "Ohm's Law: V = I·R | Power: P = V·I"]
+      },
+      chemistry: {
+        name: "Chemistry", am: "ኬሚስትሪ", icon: "flask-conical", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+        units: ["Unit 1: Acid–Base Equilibria", "Unit 2: Electrochemistry", "Unit 3: Industrial & Organic Chemistry"],
+        summary: "Atomic structure, bonding, stoichiometry, equilibrium, acids & bases, and organic chemistry.",
+        bullets: ["Ideal Gas Law: PV = nRT", "pH = -log[H⁺] (Neutral = 7 at 25°C)", "Molarity: M = moles solute / L solution"]
+      },
+      biology: {
+        name: "Biology", am: "ባዮሎጂ", icon: "dna", color: "text-green-400 bg-green-500/10 border-green-500/20",
+        units: ["Unit 1: Microorganisms", "Unit 2: Ecology & Energy Transformation", "Unit 3: Evolution & Genetics"],
+        summary: "Cell biology, enzymes, genetics, evolution, human physiology, and ecology.",
+        bullets: ["Respiration: C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + ATP", "DNA Pairing: A–T and C–G", "Mitochondria = ATP; Ribosomes = Proteins"]
+      },
+      english: {
+        name: "English", am: "እንግሊዝኛ", icon: "book-a", color: "text-purple-400 bg-purple-500/10 border-purple-500/20",
+        units: ["Unit 1: Reading & Vocabulary", "Unit 2: Grammar & Conditionals", "Unit 3: Communicative Writing"],
+        summary: "Reading comprehension, grammar, tenses, conditionals, vocabulary, and essay writing.",
+        bullets: ["'Neither...nor' agrees with the nearer subject.", "Conditionals: Type 1 (Real), Type 2 (Unreal), Type 3 (Past).", "Check tense consistency in passive voice."]
+      },
+      geography: {
+        name: "Geography", am: "ጂኦግራፊ", icon: "globe", color: "text-cyan-400 bg-cyan-500/10 border-cyan-500/20",
+        units: ["Unit 1: Geological Processes", "Unit 2: Climate of Ethiopia", "Unit 3: Population & Development"],
+        summary: "Map reading, Ethiopian landforms, climate zones, population dynamics, and natural resources.",
+        bullets: ["Zones: Bereha, Kolla, Woina Dega, Dega, Wurch.", "Rift Valley splits Ethiopian Highlands.", "Map Scale = Map Distance / Ground Distance."]
+      },
+      history: {
+        name: "History", am: "ታሪክ", icon: "landmark", color: "text-orange-400 bg-orange-500/10 border-orange-500/20",
+        units: ["Unit 1: Aksum & Medieval Ethiopia", "Unit 2: Battle of Adwa & Modern Era", "Unit 3: Global & African History"],
+        summary: "Ancient civilizations, Ethiopian and Horn of Africa history, global wars, and modern era.",
+        bullets: ["Battle of Adwa: March 1, 1896.", "Aksumite Kingdom: Red Sea trade & coinage.", "Master cause-and-effect timelines for EUEE."]
+      },
+      economics: {
+        name: "Economics", am: "ኢኮኖሚክስ", icon: "trending-up", color: "text-teal-400 bg-teal-500/10 border-teal-500/20",
+        units: ["Unit 1: Macroeconomics & GDP", "Unit 2: Fiscal & Monetary Policy", "Unit 3: Ethiopian Economic Sectors"],
+        summary: "Microeconomics, demand & supply, market structures, GDP, inflation, and Ethiopian policy.",
+        bullets: ["Law of Demand: Price ↑ → Quantity Demanded ↓", "GDP = C + I + G + (X - M)", "Inflation tracks sustained general price rises."]
+      },
+      citizenship: {
+        name: "Citizenship", am: "ዜግነት", icon: "scale", color: "text-indigo-400 bg-indigo-500/10 border-indigo-500/20",
+        units: ["Unit 1: Constitutionalism", "Unit 2: Rule of Law & Human Rights", "Unit 3: Ethical Leadership"],
+        summary: "Constitutionalism, rule of law, human rights, democracy, and ethical leadership.",
+        bullets: ["Rule of Law: Equal accountability under law.", "Separation of Powers: Legislative, Executive, Judicial.", "Civic Virtue: Active community participation."]
+      },
+      ict: {
+        name: "IT (ICT)", am: "ኢንፎርሜሽን ቴክኖሎጂ", icon: "cpu", color: "text-sky-400 bg-sky-500/10 border-sky-500/20",
+        units: ["Unit 1: Computer Networks", "Unit 2: Relational Databases", "Unit 3: Web & Cybersecurity"],
+        summary: "Computer hardware, networking, databases, web development, and cybersecurity basics.",
+        bullets: ["OSI Model: 7 layers (Physical to Application).", "Primary Key uniquely identifies each DB row.", "HTTPS encrypts web traffic."]
+      },
+      agriculture: {
+        name: "Agriculture", am: "ግብርና", icon: "sprout", color: "text-lime-400 bg-lime-500/10 border-lime-500/20",
+        units: ["Unit 1: Crop Production", "Unit 2: Soil Fertility & Conservation", "Unit 3: Livestock Management"],
+        summary: "Crop production, soil fertility, livestock management, and sustainable farming in Ethiopia.",
+        bullets: ["Crop rotation restores soil nitrogen.", "Terracing prevents highland soil erosion.", "IPM combines biological & cultural pest control."]
+      },
+      amharic: {
+        name: "Amharic", am: "አማርኛ", icon: "feather", color: "text-rose-400 bg-rose-500/10 border-rose-500/20",
+        units: ["ምዕራፍ 1: ሰዋስው እና አረፍተ ነገር", "ምዕራፍ 2: የድርሰት አጻጻፍ", "ምዕራፍ 3: ሥነ-ጽሑፍ እና ቅኔ"],
+        summary: "ሰዋስው፣ ንባብ፣ ድርሰት አጻጻፍ እና የሥነ-ጽሑፍ ትንተና።",
+        bullets: ["ባለቤት (Subject) እና ማሰሪያ አንቀጽ (Verb)።", "የድርሰት አይነቶች፦ ተራኪ፣ ገላጭ፣ አስረጂ፣ አመዛዛኝ።", "ቅኔ እና ምሳሌያዊ አነጋገሮች።"]
+      },
+      sat: {
+        name: "Aptitude (SAT)", am: "አፕቲቲውድ", icon: "lightbulb", color: "text-yellow-400 bg-yellow-500/10 border-yellow-500/20",
+        units: ["Part 1: Verbal Analogies & Synonyms", "Part 2: Reading Comprehension", "Part 3: Quantitative Reasoning"],
+        summary: "Verbal reasoning and quantitative reasoning tailored for Ethiopian Entrance Exam.",
+        bullets: ["Spot exact pair relationships in analogies.", "Test edge cases (0, 1, negatives) in math comparisons.", "Target ~1 minute per SAT item."]
+      }
+    };
+
+    const GRADE_SUBJECTS = {
+      G9: ["math", "english", "physics", "chemistry", "biology", "geography", "history", "citizenship", "ict", "economics", "amharic"],
+      G10: ["math", "english", "physics", "chemistry", "biology", "geography", "history", "citizenship", "ict", "economics", "amharic"],
+      G11_NAT: ["math", "english", "physics", "chemistry", "biology", "ict", "agriculture", "sat"],
+      G11_SOC: ["math", "english", "geography", "history", "economics", "citizenship", "ict", "sat"],
+      G12_NAT: ["math", "english", "physics", "chemistry", "biology", "ict", "agriculture", "sat"],
+      G12_SOC: ["math", "english", "geography", "history", "economics", "citizenship", "ict", "sat"]
+    };
+
+    const FLASHCARDS = [
+      { id: "fc1", subj: "Physics", front: "State Newton's Second Law of Motion & its SI unit for force.", back: "F = m × a. Force is measured in Newtons (1 N = 1 kg·m/s²)." },
+      { id: "fc2", subj: "Physics", front: "What is the formula for Kinetic Energy (KE)?", back: "KE = ½ m v², where m is mass (kg) and v is velocity (m/s)." },
+      { id: "fc3", subj: "Biology", front: "What is the role of Mitochondria vs. Ribosomes?", back: "Mitochondria produce ATP (energy); Ribosomes synthesize proteins." },
+      { id: "fc4", subj: "Biology", front: "Write the complementary DNA strand for 5'-ATGCTA-3'.", back: "3'-TACGAT-5' (A pairs with T, C pairs with G)." },
+      { id: "fc5", subj: "Chemistry", front: "Write the Ideal Gas Law equation and define each symbol.", back: "PV = nRT (Pressure, Volume, Moles, Gas Constant, Kelvin Temp)." },
+      { id: "fc6", subj: "Chemistry", front: "What is the pH of a neutral solution at 25°C?", back: "pH = 7 (since [H⁺] = [OH⁻] = 10⁻⁷ M)." },
+      { id: "fc7", subj: "Mathematics", front: "What is the Power Rule for derivatives?", back: "d/dx (xⁿ) = n · xⁿ⁻¹." },
+      { id: "fc8", subj: "Mathematics", front: "Formula for the sum of an infinite geometric series (|r| < 1)?", back: "S∞ = a₁ / (1 - r)." },
+      { id: "fc9", subj: "Economics", front: "Write the Expenditure Approach formula for GDP.", back: "GDP = C + I + G + (X - M)." },
+      { id: "fc10", subj: "History", front: "When was the Battle of Adwa fought and what was its significance?", back: "March 1, 1896 — preserved Ethiopia's sovereignty and inspired Pan-Africanism." }
+    ];
+
+    const QUIZ_BANK = [
+      { subj: "Physics", q: "Which physical quantity is a vector quantity?", opts: ["Speed", "Mass", "Displacement", "Temperature"], ans: 2, exp: "Displacement has both magnitude and direction, making it a vector quantity." },
+      { subj: "Physics", q: "A 4 kg object accelerates at 3 m/s². What is the net force acting on it?", opts: ["7 N", "12 N", "1.33 N", "0.75 N"], ans: 1, exp: "By Newton's Second Law, F = m × a = 4 kg × 3 m/s² = 12 N." },
+      { subj: "Biology", q: "Which organelle is known as the powerhouse of the eukaryotic cell?", opts: ["Ribosome", "Mitochondrion", "Golgi apparatus", "Lysosome"], ans: 1, exp: "Mitochondria generate most of the cell's ATP via aerobic cellular respiration." },
+      { subj: "Biology", q: "In DNA, Adenine (A) always pairs with which nitrogenous base?", opts: ["Cytosine (C)", "Guanine (G)", "Thymine (T)", "Uracil (U)"], ans: 2, exp: "In DNA double helices, Adenine pairs with Thymine (A–T) via two hydrogen bonds." },
+      { subj: "Chemistry", q: "What is the pH value of a neutral aqueous solution at 25°C?", opts: ["0", "5", "7", "14"], ans: 2, exp: "Pure water at 25°C has [H⁺] = [OH⁻] = 10⁻⁷ M, giving pH = 7." },
+      { subj: "Chemistry", q: "Which law relates pressure, volume, temperature, and moles of an ideal gas?", opts: ["Boyle's Law", "Ideal Gas Law (PV = nRT)", "Hess's Law", "Faraday's Law"], ans: 1, exp: "PV = nRT combines Boyle's, Charles's, and Avogadro's laws into one equation." },
+      { subj: "Mathematics", q: "If f(x) = 3x² - 4x + 1, what is the derivative f'(x)?", opts: ["6x - 4", "3x - 4", "6x² - 4", "6x + 1"], ans: 0, exp: "Applying the power rule: d/dx(3x²) = 6x, d/dx(-4x) = -4, and d/dx(1) = 0." },
+      { subj: "Mathematics", q: "What is the value of log₁₀(1000)?", opts: ["2", "3", "10", "100"], ans: 1, exp: "Since 10³ = 1000, log₁₀(1000) = 3." },
+      { subj: "English", q: "Choose the grammatically correct sentence:", opts: ["Neither the teacher nor the students was present.", "Neither the teacher nor the students were present.", "Neither the teacher or the students were present.", "Neither the teacher nor the students is present."], ans: 1, exp: "With 'neither...nor', the verb agrees with the nearer subject ('students' → 'were')." },
+      { subj: "Economics", q: "According to the Law of Demand, when the price of a normal good rises (ceteris paribus), quantity demanded:", opts: ["Increases", "Decreases", "Remains constant", "Becomes infinite"], ans: 1, exp: "Price and quantity demanded have an inverse relationship, holding other factors constant." },
+      { subj: "Geography", q: "Which Ethiopian agro-ecological zone is the warmest lowland area?", opts: ["Wurch", "Dega", "Woina Dega", "Bereha"], ans: 3, exp: "Bereha represents the arid lowland zone below 500m elevation in Ethiopia." },
+      { subj: "History", q: "In what year was the historic Battle of Adwa fought?", opts: ["1868", "1889", "1896", "1936"], ans: 2, exp: "The Battle of Adwa took place on March 1, 1896, securing Ethiopian sovereignty." }
+    ];
+
+    const EUEE_TASKS = [
+      { id: "t1", label: "ዛሬ 1 ምዕራፍ ኖት አንብቤያለሁ (Read 1 unit note)" },
+      { id: "t2", label: "5+ Flashcards ገልብጬ አጥንቻለሁ (Review 5 flashcards)" },
+      { id: "t3", label: "ቢያንስ 10 የExam ጥያቄዎችን ሰርቻለሁ (Solve 10 questions)" },
+      { id: "t4", label: "1 ዙር Pomodoro አጥንቻለሁ (Complete 1 study session)" }
+    ];
+
+    const STORAGE_KEY = "ethio_smart_miniapp_v2";
+
+    function loadState() {
+      const defaults = { grade: "G12_NAT", xp: 0, score: 0, total: 0, streak: 0, sessions: 0, mastered: {}, checkedTasks: {} };
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? Object.assign(defaults, JSON.parse(raw)) : defaults;
+      } catch (e) {
+        return defaults;
+      }
+    }
+
+    function saveState() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+    }
+
+    let state = loadState();
+    let filteredQuiz = [...QUIZ_BANK];
+    let quizIndex = 0;
+    let quizAnswered = false;
+    let timedMode = false;
+    let examSecLeft = 45;
+    let examTimerId = null;
+
+    let filteredCards = [...FLASHCARDS];
+    let fcIndex = 0;
+    let activeModalSubj = null;
+
+    let timerDuration = 25 * 60;
+    let timerRemaining = 25 * 60;
+    let timerInterval = null;
+
+    function showToast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.remove("hidden");
+      clearTimeout(el._t);
+      el._t = setTimeout(() => el.classList.add("hidden"), 2300);
+    }
+
+    function stopExamClock() {
+      if (examTimerId) {
+        clearInterval(examTimerId);
+        examTimerId = null;
+      }
+    }
+
+    function switchTab(tab) {
+      stopExamClock();
+      document.querySelectorAll(".view-section").forEach(sec => sec.classList.add("hidden"));
+      document.getElementById("view-" + tab).classList.remove("hidden");
+      document.querySelectorAll(".nav-btn").forEach(btn => {
+        if (btn.dataset.tab === tab) {
+          btn.classList.add("bnav-active");
+          btn.classList.remove("text-slate-400");
+        } else {
+          btn.classList.remove("bnav-active");
+          btn.classList.add("text-slate-400");
+        }
+      });
+      if (tab === "quiz" && timedMode && !quizAnswered) startExamClock();
+      renderStats();
+    }
+
+    function renderStats() {
+      const label = GRADE_LABELS[state.grade] || state.grade;
+      const masteredCount = Object.keys(state.mastered || {}).length;
+      document.getElementById("heroGradeBadge").textContent = label;
+      document.getElementById("topXpStat").textContent = `${state.xp} XP`;
+      document.getElementById("topScoreStat").textContent = `${state.score}/${state.total}`;
+      document.getElementById("topStreakStat").textContent = `${state.streak} 🔥`;
+      document.getElementById("quizInlineScore").textContent = `${state.score} / ${state.total}`;
+      document.getElementById("timerSessionsBadge").textContent = `${state.sessions} ዙር`;
+      document.getElementById("flashcardMasteredBadge").textContent = `${masteredCount} Mastered`;
+
+      const acc = state.total > 0 ? Math.round((state.score / state.total) * 100) : 0;
+      let badge = "🌱 Beginner";
+      if (state.xp >= 150) badge = "👑 Top Scholar";
+      else if (state.xp >= 70) badge = "🔥 Honor Student";
+      else if (state.xp >= 25) badge = "⭐ Active Learner";
+
+      document.getElementById("profileBadge").textContent = badge;
+      document.getElementById("profileGrade").textContent = label;
+      document.getElementById("profileAccuracy").textContent = `${acc}%`;
+      document.getElementById("profileMastered").textContent = `${masteredCount} ካርድ`;
+      document.getElementById("profileSessions").textContent = `${state.sessions} ዙር`;
+    }
+
+    function renderSubjects() {
+      const query = (document.getElementById("subjectSearch").value || "").trim().toLowerCase();
+      const codes = GRADE_SUBJECTS[state.grade] || GRADE_SUBJECTS.G9;
+      const grid = document.getElementById("subjectsGrid");
+      grid.innerHTML = "";
+
+      const matched = codes.filter(code => {
+        const d = SUBJECT_DETAILS[code];
+        return !query || d.name.toLowerCase().includes(query) || d.am.includes(query);
+      });
+
+      if (matched.length === 0) {
+        grid.innerHTML = `<div class="col-span-full text-center py-8 bg-slate-900 border border-slate-800 rounded-2xl text-slate-400 text-xs sm:text-sm">የሚመሳሰል ትምህርት አልተገኘም።</div>`;
+        return;
+      }
+
+      matched.forEach(code => {
+        const d = SUBJECT_DETAILS[code];
+        const card = document.createElement("div");
+        card.className = "bg-slate-900 border border-slate-800 hover:border-emerald-500/50 rounded-2xl p-4 flex flex-col justify-between transition";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2.5">
+              <div class="w-9 h-9 rounded-xl border flex items-center justify-center ${d.color}">
+                <i data-lucide="${d.icon}" class="w-4 h-4"></i>
+              </div>
+              <span class="text-[10px] font-bold text-slate-400 bg-slate-950 px-2 py-0.5 rounded-full border border-slate-800">${d.units.length} Units</span>
+            </div>
+            <h4 class="text-sm sm:text-base font-bold text-white">${d.name} <span class="text-xs font-normal text-slate-400">(${d.am})</span></h4>
+            <p class="text-xs text-slate-400 mt-1 leading-relaxed">${d.summary}</p>
+          </div>
+          <div class="mt-3.5 pt-3 border-t border-slate-800 flex items-center gap-2">
+            <button data-open-note="${code}" class="flex-1 bg-emerald-600/15 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/30 text-xs font-bold py-2 px-2.5 rounded-lg transition">
+              📖 Units & Notes
+            </button>
+            <a href="https://t.me/smartlearn12" target="_blank" rel="noopener noreferrer" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold py-2 px-2.5 rounded-lg transition">
+              📕 PDF
+            </a>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      grid.querySelectorAll("[data-open-note]").forEach(btn => {
+        btn.addEventListener("click", () => openNoteModal(btn.dataset.openNote));
+      });
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function openNoteModal(code) {
+      const d = SUBJECT_DETAILS[code];
+      if (!d) return;
+      activeModalSubj = d.name;
+      document.getElementById("modalGradeTag").textContent = GRADE_LABELS[state.grade];
+      document.getElementById("modalTitle").textContent = `${d.name} (${d.am})`;
+      document.getElementById("modalBody").innerHTML = `
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
+          <div class="text-[11px] font-bold text-sky-400 uppercase tracking-wider mb-1.5">ምዕራፎች (Chapters)</div>
+          <ul class="space-y-1 text-xs text-slate-200">
+            ${d.units.map(u => `<li>• ${u}</li>`).join("")}
+          </ul>
+        </div>
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
+          <div class="text-[11px] font-bold text-emerald-400 uppercase tracking-wider mb-1.5">Formula Cheat Sheet</div>
+          <ul class="space-y-1.5 list-disc pl-4 text-xs text-slate-200">
+            ${d.bullets.map(b => `<li>${b}</li>`).join("")}
+          </ul>
+        </div>
+      `;
+      document.getElementById("noteModal").classList.remove("hidden");
+    }
+
+    // Flashcards
+    function renderFlashcard() {
+      const filter = document.getElementById("flashcardFilter").value;
+      filteredCards = filter === "ALL" ? [...FLASHCARDS] : FLASHCARDS.filter(c => c.subj === filter);
+      if (filteredCards.length === 0) filteredCards = [...FLASHCARDS];
+      if (fcIndex >= filteredCards.length) fcIndex = 0;
+
+      const card = filteredCards[fcIndex];
+      const inner = document.getElementById("flashcardInner");
+      inner.classList.remove("is-flipped");
+      document.getElementById("fcSubjTag").textContent = card.subj;
+      document.getElementById("fcCounter").textContent = `Card ${fcIndex + 1} / ${filteredCards.length}`;
+      document.getElementById("fcFrontText").textContent = card.front;
+      document.getElementById("fcBackText").textContent = card.back;
+    }
+
+    // Quiz & Timed Exam
+    function startExamClock() {
+      stopExamClock();
+      const clockEl = document.getElementById("examClock");
+      if (!timedMode) {
+        clockEl.classList.add("hidden");
+        return;
+      }
+      examSecLeft = 45;
+      clockEl.textContent = `⏱ 00:${String(examSecLeft).padStart(2, "0")}`;
+      clockEl.classList.remove("hidden");
+      examTimerId = setInterval(() => {
+        examSecLeft -= 1;
+        clockEl.textContent = `⏱ 00:${String(Math.max(0, examSecLeft)).padStart(2, "0")}`;
+        if (examSecLeft <= 0) {
+          stopExamClock();
+          if (!quizAnswered) {
+            const optsEl = document.getElementById("quizOptions");
+            handleQuizAnswer(-1, filteredQuiz[quizIndex], optsEl);
+          }
+        }
+      }, 1000);
+    }
+
+    function renderQuiz() {
+      stopExamClock();
+      const filter = document.getElementById("quizSubjectFilter").value;
+      filteredQuiz = filter === "ALL" ? [...QUIZ_BANK] : QUIZ_BANK.filter(q => q.subj === filter);
+      if (filteredQuiz.length === 0) filteredQuiz = [...QUIZ_BANK];
+      if (quizIndex >= filteredQuiz.length) quizIndex = 0;
+
+      const item = filteredQuiz[quizIndex];
+      quizAnswered = false;
+      document.getElementById("quizTag").textContent = item.subj;
+      document.getElementById("quizCounter").textContent = `Question ${quizIndex + 1} / ${filteredQuiz.length}`;
+      document.getElementById("quizQuestion").textContent = item.q;
+      document.getElementById("quizFeedback").classList.add("hidden");
+
+      const optsEl = document.getElementById("quizOptions");
+      optsEl.innerHTML = "";
+      const letters = ["A", "B", "C", "D"];
+      item.opts.forEach((opt, i) => {
+        const btn = document.createElement("button");
+        btn.className = "quiz-opt w-full text-left bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl px-3.5 py-3 text-xs sm:text-sm text-slate-100 flex items-center gap-3 transition";
+        btn.innerHTML = `<span class="w-6 h-6 rounded-lg bg-slate-800 text-slate-200 font-bold text-xs flex items-center justify-center shrink-0">${letters[i]}</span><span>${opt}</span>`;
+        btn.addEventListener("click", () => handleQuizAnswer(i, item, optsEl));
+        optsEl.appendChild(btn);
+      });
+
+      if (timedMode) startExamClock();
+      else document.getElementById("examClock").classList.add("hidden");
+    }
+
+    function handleQuizAnswer(picked, item, optsEl) {
+      if (quizAnswered) return;
+      quizAnswered = true;
+      stopExamClock();
+
+      const isCorrect = picked === item.ans;
+      state.total += 1;
+      if (isCorrect) {
+        state.score += 1;
+        state.streak += 1;
+        state.xp += 10;
+      } else {
+        state.streak = 0;
+      }
+      saveState();
+      renderStats();
+
+      optsEl.querySelectorAll(".quiz-opt").forEach((b, idx) => {
+        b.disabled = true;
+        if (idx === item.ans) {
+          b.classList.remove("border-slate-800", "bg-slate-950");
+          b.classList.add("border-emerald-500", "bg-emerald-500/15", "text-emerald-200");
+        } else if (idx === picked && !isCorrect) {
+          b.classList.remove("border-slate-800", "bg-slate-950");
+          b.classList.add("border-rose-500", "bg-rose-500/15", "text-rose-200");
+        }
+      });
+
+      const fb = document.getElementById("quizFeedback");
+      const title = picked === -1 ? "⏱ ሰዓቱ አልቋል! (Time's Up)" : (isCorrect ? "✅ ትክክል ነው! (+10 XP)" : "❌ ስህተት ነው! (Incorrect)");
+      fb.className = isCorrect
+        ? "rounded-xl p-3.5 mb-4 text-xs sm:text-sm border border-emerald-500/40 bg-emerald-500/10 text-emerald-200"
+        : "rounded-xl p-3.5 mb-4 text-xs sm:text-sm border border-rose-500/40 bg-rose-500/10 text-rose-200";
+      fb.innerHTML = `<div class="font-bold mb-1">${title}</div><div class="text-slate-200">${item.exp}</div>`;
+      fb.classList.remove("hidden");
+    }
+
+    function renderChecklist() {
+      const box = document.getElementById("eueeChecklist");
+      box.innerHTML = "";
+      EUEE_TASKS.forEach(t => {
+        const checked = !!state.checkedTasks[t.id];
+        const row = document.createElement("label");
+        row.className = "flex items-center gap-3 bg-slate-950 border border-slate-800 rounded-xl p-2.5 cursor-pointer hover:border-emerald-500/40 transition";
+        row.innerHTML = `
+          <input type="checkbox" ${checked ? "checked" : ""} class="w-4 h-4 accent-emerald-500 rounded" />
+          <span class="text-xs sm:text-sm ${checked ? "line-through text-slate-500" : "text-slate-200"}">${t.label}</span>
+        `;
+        row.querySelector("input").addEventListener("change", e => {
+          state.checkedTasks[t.id] = e.target.checked;
+          if (e.target.checked) state.xp += 5;
+          saveState();
+          renderStats();
+          renderChecklist();
+        });
+        box.appendChild(row);
+      });
+    }
+
+    function updateTimerUI() {
+      const m = String(Math.floor(timerRemaining / 60)).padStart(2, "0");
+      const s = String(timerRemaining % 60).padStart(2, "0");
+      document.getElementById("timerDisplay").textContent = `${m}:${s}`;
+    }
+
+    function startTimer() {
+      if (timerInterval) return;
+      document.getElementById("timerStatus").textContent = "🔥 ጥናት ላይ ነዎት — ትኩረትዎን ይጠብቁ!";
+      timerInterval = setInterval(() => {
+        if (timerRemaining > 0) {
+          timerRemaining -= 1;
+          updateTimerUI();
+        } else {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          state.sessions += 1;
+          state.xp += 20;
+          saveState();
+          renderStats();
+          document.getElementById("timerStatus").textContent = "🎉 ዙሩ ተጠናቋል! (+20 XP)";
+          showToast("🎉 1 የጥናት ዙር ተጠናቋል (+20 XP)");
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        document.getElementById("timerStatus").textContent = "⏸️ ቆሟል (Paused)";
+      }
+    }
+
+    function resetTimer() {
+      pauseTimer();
+      timerRemaining = timerDuration;
+      updateTimerUI();
+      document.getElementById("timerStatus").textContent = "ለመጀመር Start ይጫኑ";
+    }
+
+    // Bind Events
+    document.querySelectorAll(".nav-btn").forEach(btn => {
+      btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+    });
+
+    const gradeSelect = document.getElementById("gradeSelect");
+    gradeSelect.value = state.grade;
+    gradeSelect.addEventListener("change", () => {
+      state.grade = gradeSelect.value;
+      saveState();
+      renderStats();
+      renderSubjects();
+      showToast(`✅ ${GRADE_LABELS[state.grade]} ተመርጧል`);
+    });
+
+    document.getElementById("subjectSearch").addEventListener("input", renderSubjects);
+
+    document.getElementById("flashcardFilter").addEventListener("change", () => {
+      fcIndex = 0;
+      renderFlashcard();
+    });
+    const flipCard = () => document.getElementById("flashcardInner").classList.toggle("is-flipped");
+    document.getElementById("flashcardInner").addEventListener("click", flipCard);
+    document.getElementById("fcFlipBtn").addEventListener("click", flipCard);
+    document.getElementById("fcReviewBtn").addEventListener("click", () => {
+      fcIndex = (fcIndex + 1) % filteredCards.length;
+      renderFlashcard();
+    });
+    document.getElementById("fcMasterBtn").addEventListener("click", () => {
+      const card = filteredCards[fcIndex];
+      if (!state.mastered[card.id]) {
+        state.mastered[card.id] = true;
+        state.xp += 5;
+        saveState();
+        renderStats();
+        showToast("✅ +5 XP! ካርዱን አውቀውታል");
+      }
+      fcIndex = (fcIndex + 1) % filteredCards.length;
+      renderFlashcard();
+    });
+
+    document.getElementById("quizSubjectFilter").addEventListener("change", () => {
+      quizIndex = 0;
+      renderQuiz();
+    });
+
+    document.getElementById("toggleTimedModeBtn").addEventListener("click", () => {
+      timedMode = !timedMode;
+      document.getElementById("timedModeLabel").textContent = timedMode ? "Timed Mode: ON (45s)" : "Timed Mode: OFF";
+      renderQuiz();
+    });
+
+    document.getElementById("nextQuestionBtn").addEventListener("click", () => {
+      quizIndex = (quizIndex + 1) % filteredQuiz.length;
+      renderQuiz();
+    });
+
+    document.getElementById("eueeQuickQuizBtn").addEventListener("click", () => {
+      timedMode = true;
+      document.getElementById("timedModeLabel").textContent = "Timed Mode: ON (45s)";
+      switchTab("quiz");
+      quizIndex = Math.floor(Math.random() * filteredQuiz.length);
+      renderQuiz();
+    });
+
+    document.querySelectorAll(".timer-preset").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".timer-preset").forEach(b => {
+          b.classList.remove("bg-emerald-600", "text-white");
+          b.classList.add("bg-slate-800", "text-slate-300");
+        });
+        btn.classList.remove("bg-slate-800", "text-slate-300");
+        btn.classList.add("bg-emerald-600", "text-white");
+        timerDuration = parseInt(btn.dataset.mins, 10) * 60;
+        resetTimer();
+      });
+    });
+
+    document.getElementById("timerStartBtn").addEventListener("click", startTimer);
+    document.getElementById("timerPauseBtn").addEventListener("click", pauseTimer);
+    document.getElementById("timerResetBtn").addEventListener("click", resetTimer);
+
+    document.getElementById("closeNoteModalBtn").addEventListener("click", () => {
+      document.getElementById("noteModal").classList.add("hidden");
+    });
+
+    document.getElementById("modalQuizBtn").addEventListener("click", () => {
+      document.getElementById("noteModal").classList.add("hidden");
+      const filterEl = document.getElementById("quizSubjectFilter");
+      const hasOption = Array.from(filterEl.options).some(o => o.value === activeModalSubj);
+      filterEl.value = hasOption ? activeModalSubj : "ALL";
+      quizIndex = 0;
+      switchTab("quiz");
+      renderQuiz();
+    });
+
+    document.getElementById("openResetModalBtn").addEventListener("click", () => {
+      document.getElementById("resetModal").classList.remove("hidden");
+    });
+    document.getElementById("cancelResetBtn").addEventListener("click", () => {
+      document.getElementById("resetModal").classList.add("hidden");
+    });
+    document.getElementById("confirmResetBtn").addEventListener("click", () => {
+      state = { grade: state.grade, xp: 0, score: 0, total: 0, streak: 0, sessions: 0, mastered: {}, checkedTasks: {} };
+      saveState();
+      renderStats();
+      renderChecklist();
+      document.getElementById("resetModal").classList.add("hidden");
+      showToast("🔄 ውጤትዎ እንደገና ተጀምሯል");
+    });
+
+    // Init
+    renderStats();
+    renderSubjects();
+    renderFlashcard();
+    renderQuiz();
+    renderChecklist();
+    updateTimerUI();
+    if (window.lucide) lucide.createIcons();
+  </script>
+</body>
+</html>
